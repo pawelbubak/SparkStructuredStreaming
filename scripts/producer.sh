@@ -19,17 +19,20 @@ echo "Unpacking data completed"
 cd ..
 
 echo "Configuring kafka"
-/usr/lib/kafka/bin/kafka-topics.sh --delete \
- --zookeeper localhost:2181 \
- --topic testTopic
-/usr/lib/kafka/bin/kafka-topics.sh --create \
- --zookeeper localhost:2181 \
- --replication-factor 1 --partitions 1 --topic kafka-tt-bicycles-input
-echo "Kafka configuration completed. Created kafka topic [kafka-tt-bicycles-input]"
-echo "Workspace preparation completed"
+echo "Delete old topic"
+/usr/local/kafka/bin/kafka-topics.sh --delete \
+ --zookeeper ${CLUSTER_NAME}-m:2181 \
+ --topic bicycles-input
+
+echo "Create kafka topic: bicycles-input"
+/usr/local/kafka/bin/kafka-topics.sh --create \
+ --zookeeper ${CLUSTER_NAME}-m:2181 \
+ --replication-factor 1 --partitions 1 --topic bicycles-input
+
+echo "Kafka configuration completed."
 
 echo "Runing producer"
 CLUSTER_NAME=$(/usr/share/google/get_metadata_value attributes/dataproc-cluster-name)
 java -cp /usr/lib/kafka/libs/*:KafkaProducer.jar \
- com.example.bigdata.TestProducer project-data/bicycle_result 2 kafka-tt-bicycles-input \
+ com.example.bigdata.TestProducer project-data/bicycle_result 2 bicycles-input \
  0 ${CLUSTER_NAME}-w-0:9092
